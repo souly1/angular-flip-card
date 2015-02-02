@@ -1,5 +1,5 @@
 {
-  "name": "Angular Flip Card Directive",
+  "name": "AngularFlipCard",
   "version": "1.0.0",
   "description": "The Card is one of the most lovable and fashionable UX element out at the moment. As a card, one of the basic abilities is to flip it as can be seen in Google now cards. This one implements it",
   "dependencies": {},
