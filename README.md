@@ -6,9 +6,13 @@ The Card is one of the most lovable and fashionable UX element out at the moment
 
 Since We required such and ability for our [Fitness Meal Planner](http://www.fitnessmealplanner.com) webApp with multiple cards on screen and needs to be responsive UI, I created this Angular directive which is an implementation to resemble that behaviour.
 
+# Demo
+[Demo can be seen here](http://plnkr.co/edit/sTqc9fk4EPjEoEpkCCBX?p=preview)
+
 ## Requirements
 
 - AngularJS
+- Angular-animate (don't forget to load module 'ng-animate' to the application!)
 - No need for JQuery as JQLite is used
 
 ## Notes
@@ -47,7 +51,7 @@ Where you can replace any HTML code as you like instead of the three dotes as th
 </fmp-card>
 ```
 
-## Directive options
+## Directive Options
 
 - 'small-card-width' (optional) - the width of the small card. Can be defined with percentage. Card turned will be twice this size. Defaults auto
 - 'small-card-height' (optional) - the height of the small card. Can be defined with percentage. Card turned will be twice this size. Defaults to 100%
@@ -58,6 +62,10 @@ Where you can replace any HTML code as you like instead of the three dotes as th
 ## Testing
 
 Karma with Jasmine, run on Travis CI
+
+## Known Issues
+
+The animation in safari needs better tuning
 
 ## License
 
