@@ -1,0 +1,30 @@
+{
+  "name": "Angular Flip Card Directive",
+  "version": "1.0.0",
+  "description": "The Card is one of the most lovable and fashionable UX element out at the moment. As a card, one of the basic abilities is to flip it as can be seen in Google now cards. This one implements it",
+  "dependencies": {},
+  "devDependencies": {
+    "karma": "~0.12.0",
+    "karma-jasmine": "^0.2.0",
+    "karma-chrome-launcher": "^0.1.4",
+    "karma-cli": "~0.0.4",
+    "karma-phantomjs-launcher": "~0.1",
+    "karma-firefox-launcher": "^0.1.4"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/karma start --browsers Firefox --single-run"
+  },
+  "keywords": [
+    "angular",
+    "angularjs",
+    "card",
+    "flip",
+    "directive"
+  ],
+  "author": "Ophir Stern",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/souly1/angular-flip-card.git"
+  }
+}
