@@ -1,37 +1,103 @@
 angular.module('fmp-card', [])
-    .directive("fmpCard", function($animate) {
-        var animateCardMovingIn = function(smallCard, largeCard) {
-            //Hide small card
-            var oldSmallCardStyle = angular.element(smallCard).attr("style");
-            angular.element(smallCard).attr("style",oldSmallCardStyle + "visibility: hidden;");
+    .directive("fmpCard", function($timeout, $window) {
+        var getCssVendorPrefix = function (operation){
+            var retval = "";
 
-            //Set the large card on small card location and display it
-            var newlargeCardStyle = "left:" + smallCard.offsetLeft + "px;" +
-                "top:" + smallCard.offsetTop + "px;" +
-                "width:" + smallCard.offsetWidth + "px;" +
-                "height:" + smallCard.offsetHeight + "px;" +
-                "display:block;" + "margin:0;";
-            angular.element(largeCard).attr('style', newlargeCardStyle);
-            $animate.addClass(largeCard, 'unflip');
+            var userAgent = $window.navigator.userAgent.toLowerCase();
+            if (operation == "transform"){
+                if (userAgent.indexOf('chrome') > -1){
+                    retval = "";
+                } else if (userAgent.indexOf('safari') > -1){
+                    retval = "-webkit-";
+                } else if (userAgent.indexOf('msie') > -1){
+                    retval = "";
+                } else if (userAgent.indexOf('opera') > -1){
+                    retval = "";
+                } else if (userAgent.indexOf('firefox') > -1){
+                    retval = "";
+                } else{
+                    retval = "-webkit-";
+                }
+            }
+            return retval;
         };
 
-        var animateCardMovingOut = function(smallCard, largeCard) {
-            $animate.removeClass(largeCard, 'unflip').then(function() {
+        var getFlipCardTransitionStartPointStyle = function (smallCard, largeCard){
+            //transition flip from small card to large card
+            var flipCardLeftInitialTransition =  smallCard.offsetLeft - (largeCard.largeCardLeft + (largeCard.largeCardWidthSize - (largeCard.largeCardWidthSize / (largeCard.largeCardWidthSize/smallCard.clientWidth))) / 2);
+            var flipCardTopInitialTransition = smallCard.offsetTop - (largeCard.largeCardTop + (largeCard.largeCardHeightSize - (largeCard.largeCardHeightSize / (largeCard.largeCardHeightSize/smallCard.clientHeight))) / 2) + 2;
+            var flipCardInitialWidthScale = smallCard.clientWidth / largeCard.largeCardWidthSize;
+            var flipCardInitialHeightScale = smallCard.clientHeight / largeCard.largeCardHeightSize;
+            return "-webkit-transform: translate(" + flipCardLeftInitialTransition + "px, " +
+                flipCardTopInitialTransition + "px) " +
+                "scale(" + flipCardInitialWidthScale + "," + flipCardInitialHeightScale + ");";
+        };
 
-                //Hide Large card after it shrank
-                var largeCardOldStyle = angular.element(largeCard).attr('style');
-                if (largeCardOldStyle) {
-                    var newLargeCardStyle = largeCardOldStyle.replace("display:block", "display:none");
-                    angular.element(largeCard).attr('style', newLargeCardStyle);
-                }
+        var animateCardMovingIn = function(smallCard, largeCard, flipCard) {
+            //Set the large card in center of view-port
+            largeCard.largeCardWidthSize = smallCard.clientWidth * 2;
+            largeCard.largeCardHeightSize = smallCard.clientHeight * 2;
+            largeCard.largeCardLeft = $window.innerWidth/2 - largeCard.largeCardWidthSize/2;
+            largeCard.largeCardTop = $window.innerHeight/2 - largeCard.largeCardHeightSize/2;
 
-                //Make small Card reappear
-                var oldSmallCardStyle = angular.element(smallCard).attr("style");
-                if (oldSmallCardStyle) {
-                    var newSmallCardStyle = oldSmallCardStyle.replace("visibility: hidden;", "");
-                    angular.element(smallCard).attr('style', newSmallCardStyle);
-                }
+            var startFlipCardStyle = getFlipCardTransitionStartPointStyle(smallCard, largeCard);
+
+            var cssVendorPrefix = getCssVendorPrefix("transform");
+
+            var endFlipCardStyle = cssVendorPrefix + "transform: translate(0px, 0px) scale(1) rotateY(179.9deg);";
+            angular.element(flipCard).attr("style", startFlipCardStyle);
+
+            $timeout(function() {
+                angular.element(flipCard).attr("style", startFlipCardStyle + 'z-index:700;');
+
+                //Place large card in display
+                var newLargeCardStyle =
+                    "left:" + largeCard.largeCardLeft + "px;" +
+                    "top:" + largeCard.largeCardTop + "px;" +
+                    "width:" + largeCard.largeCardWidthSize + "px;" +
+                    "height:" + largeCard.largeCardHeightSize + "px;" +
+                    "display:block;";
+                angular.element(largeCard).attr('style', newLargeCardStyle);
+
+                //After first preparation for animate do animation changes
+                $timeout(function () {
+                    //Hide small card
+                    var oldSmallCardStyle = angular.element(smallCard).attr("style");
+                    angular.element(smallCard).attr("style",oldSmallCardStyle + "visibility: hidden;");
+
+                    angular.element(largeCard).addClass('unflip');
+                    angular.element(flipCard).attr("style", endFlipCardStyle + 'z-index:700;');
+                }, 0);
+            },100);
+        };
+
+        var animateCardMovingOutStrategy = function(smallCard, largeCard){
+            //Make small Card reappear
+            var oldSmallCardStyle = angular.element(smallCard).attr("style");
+            if (oldSmallCardStyle) {
+                var newSmallCardStyle = oldSmallCardStyle.replace("visibility: hidden;", "");
+                angular.element(smallCard).attr('style', newSmallCardStyle);
+            }
+
+            //Hide Large card after it shrank
+            var largeCardOldStyle = angular.element(largeCard).attr('style');
+            if (largeCardOldStyle) {
+                var newLargeCardStyle = largeCardOldStyle.replace("display:block", "display:none");
+                angular.element(largeCard).attr('style', newLargeCardStyle);
+            }
+        };
+
+        var animateCardMovingOut = function(smallCard, largeCard, flipCard) {
+            var transitions = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
+
+            angular.element(flipCard).one(transitions, function(){
+                angular.element(largeCard).removeClass('unflip');
+                angular.element(flipCard).unbind(transitions);
+                animateCardMovingOutStrategy(smallCard, largeCard);
             });
+
+            var endFlipCardStyle = getFlipCardTransitionStartPointStyle(smallCard, largeCard);
+            angular.element(flipCard).attr("style", endFlipCardStyle);
         };
 
         return {
@@ -52,22 +118,25 @@ angular.module('fmp-card', [])
                 //Small card representation
                 scope.smallCardDOMElement = element[0].querySelector('.fmp-card-small');
 
-                //Large card representation
+                //Large card final point representation
                 scope.largeCardDOMElement = element[0].querySelector('.fmp-card-large');
+
+                //flipping card representation
+                scope.flipperCardDOMElement = element[0].querySelector('.fmp-flipper');
 
                 //HTML element to identify clicks outside cards
                 scope.htmlElement = angular.element(document.getElementsByTagName('html'));
 
                 //Initialize card states to animate card moving back out final state
-                animateCardMovingOut(scope.smallCardDOMElement, scope.largeCardDOMElement);
+                animateCardMovingOutStrategy(scope.smallCardDOMElement, scope.largeCardDOMElement);
 
-                //Set initial large card position and hide it
-                angular.element(scope.largeCardDOMElement).attr('style',"margin:0;display:none;");
+                ////Set initial large card position and hide it
+                angular.element(scope.largeCardDOMElement).attr('style',"display:none;");
 
                 //Event when clicking outside current card which is opened
                 scope.htmlClickEventHandler = function() {
                     scope.htmlElement.unbind(scope.clickEvent, scope.htmlClickEventHandler);
-                    animateCardMovingOut(scope.smallCardDOMElement, scope.largeCardDOMElement);
+                    animateCardMovingOut(scope.smallCardDOMElement, scope.largeCardDOMElement, scope.flipperCardDOMElement);
                     scope.$digest();
                 };
 
@@ -75,14 +144,14 @@ angular.module('fmp-card', [])
                 var onSmallCardSelected = function(e){
                     var isCardAlreadyOpen = false;// if we have a different card already open then don't open another
                     //Check if we got another card already open
-                    for (var i = 0; i< scope.allSmallCardDOMElements.length ; i++){
+                    for (var i = 0; i < scope.allSmallCardDOMElements.length; i++) {
                         isCardAlreadyOpen = (scope.allSmallCardDOMElements[i].style.visibility == "hidden");
-                        if (isCardAlreadyOpen){
+                        if (isCardAlreadyOpen) {
                             break;
                         }
                     }
                     if (!isCardAlreadyOpen) { //We don't have a different card already open
-                        animateCardMovingIn(scope.smallCardDOMElement, scope.largeCardDOMElement);
+                        animateCardMovingIn(scope.smallCardDOMElement, scope.largeCardDOMElement, scope.flipperCardDOMElement);
                         //Binding only in event so we don't create for each meal binds to html body for identifying clicks outside
                         scope.htmlElement.bind(scope.clickEvent, scope.htmlClickEventHandler);
                         e.stopPropagation();
@@ -149,21 +218,24 @@ angular.module('fmp-card', [])
 
                 //Check if ionic is installed and if so modify events to use on-touch instead of ng-click. faster
                 scope.clickEvent = 'click';
-                if (typeof ionic !== 'undefined') {
-                    scope.clickEvent = 'touch';
-                }
+                //noinspection JSUnresolvedVariable
+                //if (typeof ionic !== 'undefined') {
+                //    scope.clickEvent = 'touch';
+                //}
             },
             template:
-                '<div class="fmp-card fmp-card-small" id="fmp-card-small-{{directiveSuffix}}" ng-style="{\'background-image\':\'url(\'+ image +\')\'}" ng-click="onSmallCardClicked($event)" on-touch="onSmallCardTouched($event)">' +
+            '<!--suppress ALL --><div class="fmp-card-small" id="fmp-card-small-{{directiveSuffix}}" ng-click="onSmallCardClicked($event)" on-touch="onSmallCardTouched($event)">' +
+                '<div class="fmp-card fmp-card-small-image" ng-style="{\'background-image\':\'url(\'+ image +\')\'}">' +
                     '<div ng-bind="frontCaption"></div>' +
                 '</div>' +
-                '<div class="fmp-card fmp-card-large" id="fmp-card-large-{{directiveSuffix}}" ng-click="onSmallCardClicked($event)" on-touch="onLargeCardTouched($event)">' +
-                    '<div class="fmp-flipper">' +
-                        '<div class="fmp-card-front-large" ng-style="{\'background-image\':\'url(\'+ image +\')\'}">' +
-                            '<div ng-bind="frontCaption"></div>' +
-                        '</div>' +
-                        '<div class="fmp-card-back" ng-transclude></div>' +
+            '</div>' +
+            '<!--suppress ALL --><div class="fmp-card-large" id="fmp-card-large-{{directiveSuffix}}" ng-click="onLargeCardClicked($event)" on-touch="onLargeCardTouched($event)">' +
+                '<div class="fmp-card fmp-flipper">' +
+                    '<div class="fmp-card-front-large fmp-paper" ng-style="{\'background-image\':\'url(\'+ image +\')\'}">' +
+                        //'<div ng-bind="frontCaption"></div>' +
                     '</div>' +
-                '</div>'
+                    '<div class="fmp-card-back" ng-transclude></div>' +
+                    '</div>' +
+            '</div>'
         }
     });

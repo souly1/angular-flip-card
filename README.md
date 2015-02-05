@@ -12,7 +12,6 @@ Since We required such and ability for our [Fitness Meal Planner](http://www.fit
 ## Requirements
 
 - AngularJS
-- Angular-animate (don't forget to load module 'ng-animate' to the application!)
 - No need for JQuery as JQLite is used
 
 ## Notes
@@ -61,11 +60,8 @@ Where you can replace any HTML code as you like instead of the three dotes as th
 
 ## Testing
 
-Karma with Jasmine, run on Travis CI
-
-## Known Issues
-
-The animation in safari needs better tuning
+Ran on Chrome, Safari, Iphone 4 Emulator and Android S3,
+For continuous integration with Karma with Jasmine, run on Travis CI for FireFox
 
 ## License
 

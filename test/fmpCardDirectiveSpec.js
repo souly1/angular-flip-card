@@ -3,7 +3,7 @@ describe('Card Flip Directive', function() {
     var $rootScope;
     var $scope;
     var $timeout;
-
+    var ionicInstanceIfExists;
     // Load the myApp module, which contains the directive
     beforeEach(module('fmp-card'));
 
@@ -19,6 +19,10 @@ describe('Card Flip Directive', function() {
         $scope = $rootScope.$new();
         $timeout = _$timeout_;
     }));
+
+    afterEach(function() {
+
+    });
 
     it('Should use height 100% of containing element for unflipped card if height not defined', function(){
         //Arrange
@@ -169,7 +173,7 @@ describe('Card Flip Directive', function() {
         $scope.$digest();
 
         //Assert
-        expect(angular.element('.fmp-card-small').css("background-image")).toContain(expectedBackgroundSrc);
+        expect(angular.element('.fmp-card-small-image').css("background-image")).toContain(expectedBackgroundSrc);
     });
 
     it('Should set small unflipped card caption according to width param', function() {
@@ -189,7 +193,7 @@ describe('Card Flip Directive', function() {
         expect(angular.element('.fmp-card-small').text()).toBe(expectedCaption);
     });
 
-    it('Should display flipped large card once small card clicked', function() {
+    it('Should display flipped large card once small card clicked', function(done) {
         //Arrange
         var expectedCaption = "card caption";
         $scope = $rootScope.$new();
@@ -204,10 +208,14 @@ describe('Card Flip Directive', function() {
 
         //Act
         smallCard.click();
+        $timeout.flush();
 
-        //Assert
-        expect(smallCard[0].style.visibility).toBe('hidden');
-        expect(largeCard[0].style.display).toBe('block');
+        window.setTimeout(function () {
+            //Assert
+            expect(smallCard[0].style.visibility).toBe('hidden');
+            expect(largeCard[0].style.display).toBe('block');
+            done();
+        }, 0);
     });
 
     it('Should close flipped large card once clicked outside', function(done) {
@@ -223,25 +231,21 @@ describe('Card Flip Directive', function() {
         var html = angular.element('html');
         var smallCard = angular.element('.fmp-card-small');
         var largeCard = angular.element('.fmp-card-large');
-        var postCardCloseAsserts = function(){
-            //Assert
-            expect(smallCard[0].style.visibility).toBe('');
-            expect(largeCard[0].style.display).toBe('none');
 
-            done();
-        };
-
-        var postCardOpen = function() {
-            html.click();
-            $timeout(postCardCloseAsserts,0);
-            $timeout.flush();
-        };
-
+        //Act
         smallCard.click();
-
-        $timeout(postCardOpen,0);
         $timeout.flush();
-
+        window.setTimeout(function () {
+            html.click();
+            window.setTimeout(function () {
+                window.setTimeout(function () {
+                    //Assert
+                    expect(smallCard[0].style.visibility).toBe('');
+                    expect(largeCard[0].style.display).toBe('none');
+                    done();
+                }, 500);
+            }, 500);
+        }, 500);
     });
 
     it('Should do nothing special if flipped large card clicked', function(done) {
@@ -256,23 +260,17 @@ describe('Card Flip Directive', function() {
         $scope.$digest();
         var smallCard = angular.element('.fmp-card-small');
         var largeCard = angular.element('.fmp-card-large');
-        var postCardCloseAsserts = function(){
-            //Assert
-            expect(smallCard[0].style.visibility).toBe('hidden');
-            expect(largeCard[0].style.display).toBe('block');
-
-            done();
-        };
-
-        var postCardOpen = function() {
-            largeCard.click();
-            $timeout(postCardCloseAsserts,0);
-            $timeout.flush();
-        };
 
         smallCard.click();
-
-        $timeout(postCardOpen,0);
         $timeout.flush();
+        window.setTimeout(function () {
+            largeCard.click();
+            window.setTimeout(function () {
+                //Assert
+                expect(smallCard[0].style.visibility).toBe('hidden');
+                expect(largeCard[0].style.display).toBe('block');
+                done();
+            }, 0);
+        }, 0);
     });
 });
