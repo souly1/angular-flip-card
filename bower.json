@@ -8,15 +8,15 @@
   "main": "fmp-card-directive.js",
   "description": "The Card is one of the most lovable and fashionable UX element out at the moment. As a card, one of the basic abilities is to flip it as can be seen in Google now cards. This one implements it",
   "dependencies": {
-    "angular": "1.0.8",
-    "angular-sanitize": "1.0.8",
+    "angular": "^1.0.8",
+    "angular-sanitize": "^1.0.8",
     "showdown": "~0.3.1",
     "jquery": "^2.0",
     "jasmine-core": "^2.1",
     "jasmine-jquery": "^2.0.6"
   },
   "devDependencies": {
-    "angular-mocks": "1.0.8"
+    "angular-mocks": "^1.0.8"
   },
   "keywords": [
     "angularjs",

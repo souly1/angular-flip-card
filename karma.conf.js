@@ -17,7 +17,7 @@ module.exports = function(config) {
       'bower_components/jquery/**/jquery*.min.js',
       'bower_components/jasmine-jquery/lib/jasmine-jquery.js',
       'bower_components/angular/angular.js',
-      'bower_components/angular-mocks/*.js',
+      'bower_components/angular-mocks/angular-mocks.js',
       'fmpCardDirective.js',
       'test/**/*.js',
       {pattern: 'css/*.css', watched: true, served: true, included: false}
