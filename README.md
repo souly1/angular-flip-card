@@ -57,7 +57,8 @@ Where you can replace any HTML code as you like instead of the three dotes as th
 - `suffix` (optional) - a suffix to be added to id's for the small card and large card representations. Prefix is 'fmp-card-small-'/'fmp-card-large-' representatively. If none supplied random number issued
 - `image` (optional) - image to be used as cards front face background
 - `front-caption` (optional) - The caption to show for the front cards face
-
+- 'onCardOpened' (optional) - bind an event fired when card is pressed to open.
+- 'onCardClosed' (optional) - bind an event fired when card is pressed to be closed. if Returns false then cancels close of card
 ## Testing
 
 Ran on Chrome, Safari, Iphone 4 Emulator and Android S3,

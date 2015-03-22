@@ -5,7 +5,7 @@
     background-color: #fff;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     height: 95%;
-    background-size: auto 100%;
+    background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;
 
@@ -71,7 +71,7 @@
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     background: #fefefe;
-    background-size: auto 100%;
+    background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;
     -moz-transform: translatez(0);

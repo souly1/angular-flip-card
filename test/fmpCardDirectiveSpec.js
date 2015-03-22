@@ -3,7 +3,6 @@ describe('Card Flip Directive', function() {
     var $rootScope;
     var $scope;
     var $timeout;
-    var ionicInstanceIfExists;
     // Load the myApp module, which contains the directive
     beforeEach(module('fmp-card'));
 
@@ -218,7 +217,7 @@ describe('Card Flip Directive', function() {
         }, 0);
     });
 
-    it('Should close flipped large card once clicked outside', function(done) {
+    it('Should close flipped large card once clicked', function(done) {
         //Arrange
         var expectedCaption = "card caption";
         $scope = $rootScope.$new();
@@ -228,32 +227,39 @@ describe('Card Flip Directive', function() {
             '</fmp-card>');
         $compile($("body"))($scope);
         $scope.$digest();
-        var html = angular.element('html');
         var smallCard = angular.element('.fmp-card-small');
         var largeCard = angular.element('.fmp-card-large');
 
         //Act
         smallCard.click();
-        $timeout.flush();
         window.setTimeout(function () {
-            html.click();
+            expect(smallCard[0].style.visibility).toBe('hidden'); //Verify small card has been flipped
+            expect(largeCard[0].style.display).toBe('block'); //Verify small card has been flipped
+            largeCard.click();
+            $scope.$digest();
             window.setTimeout(function () {
                 window.setTimeout(function () {
                     //Assert
-                    expect(smallCard[0].style.visibility).toBe('');
-                    expect(largeCard[0].style.display).toBe('none');
+                    expect(smallCard[0].style.visibility).toBe(''); //Verify large card has been flipped
+                    expect(largeCard[0].style.display).toBe('none'); //Verify large card has been flipped
                     done();
-                }, 500);
+                }, 10);
             }, 500);
         }, 500);
+        //$scope.$digest();
+        $timeout.flush();
     });
 
-    it('Should do nothing special if flipped large card clicked', function(done) {
+    it('Should fire onCardOpen event when clicking on small card', function(done) {
         //Arrange
+        var cardOpened = false;
         var expectedCaption = "card caption";
         $scope = $rootScope.$new();
+        $scope.onCardOpen = function(){
+            cardOpened = true;
+        };
         var fixture = setFixtures(
-            '<fmp-card suffix="test" image="card-front-icon.png" front-caption="' + expectedCaption + '" small-card-width="98px" small-card-height="124px">' +
+            '<fmp-card suffix="test" image="card-front-icon.png" front-caption="' + expectedCaption + '" small-card-width="98px" small-card-height="124px" on-card-opened="onCardOpen()">' +
             '<div id="card-back1">Card Back 1</div>' +
             '</fmp-card>');
         $compile($("body"))($scope);
@@ -261,16 +267,54 @@ describe('Card Flip Directive', function() {
         var smallCard = angular.element('.fmp-card-small');
         var largeCard = angular.element('.fmp-card-large');
 
+        //Act
         smallCard.click();
-        $timeout.flush();
+
         window.setTimeout(function () {
-            largeCard.click();
-            window.setTimeout(function () {
-                //Assert
-                expect(smallCard[0].style.visibility).toBe('hidden');
-                expect(largeCard[0].style.display).toBe('block');
-                done();
-            }, 0);
+            //Assert
+            expect(cardOpened).toBe(true);
+            done();
         }, 0);
+        $scope.$digest();
+        //$timeout.flush();
+    });
+
+    it('Should fire onCardClose event when clicking on small card and cancel close if return value is false', function(done) {
+        //Arrange
+        var cardClosedCalled = false;
+        var expectedCaption = "card caption";
+        $scope = $rootScope.$new();
+        $scope.onCardClose = function(){
+            cardClosedCalled = true;
+            return false;
+        };
+        var fixture = setFixtures(
+            '<fmp-card suffix="test" image="card-front-icon.png" front-caption="' + expectedCaption + '" small-card-width="98px" small-card-height="124px" on-card-closed="onCardClose()">' +
+            '<div id="card-back1">Card Back 1</div>' +
+            '</fmp-card>');
+        $compile($("body"))($scope);
+        $scope.$digest();
+        var smallCard = angular.element('.fmp-card-small');
+        var largeCard = angular.element('.fmp-card-large');
+
+        //Act
+        smallCard.click();
+        window.setTimeout(function () {
+            expect(smallCard[0].style.visibility).toBe('hidden'); //Verify small card has been flipped
+            expect(largeCard[0].style.display).toBe('block'); //Verify small card has been flipped
+            largeCard.click();
+            $scope.$digest();
+            window.setTimeout(function () {
+                window.setTimeout(function () {
+                    //Assert
+                    expect(smallCard[0].style.visibility).toBe('hidden'); //Verify large card has been flipped
+                    expect(largeCard[0].style.display).toBe('block'); //Verify large card has been flipped
+                    expect(cardClosedCalled).toBe(true);
+                    done();
+                }, 0);
+            }, 500);
+        }, 500);
+        //$scope.$digest();
+        $timeout.flush();
     });
 });

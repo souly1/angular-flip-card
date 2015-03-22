@@ -108,12 +108,14 @@ angular.module('fmp-card', [])
                 smallCardHeight: "@",
                 image: "@",
                 frontCaption: "@",
-                suffix: "@"
+                suffix: "@",
+                onCardOpened: "&",
+                onCardClosed: "&"
             },
             link: function (scope, element) {
                 //Get all existing small cards to check if clicking outside of this card not clicking
                 //on another card. is so don't open it
-                scope.allSmallCardDOMElements = angular.element(document.getElementsByClassName('fmp-card-small'));
+                scope.allSmallCardDOMElements = null;
 
                 //Small card representation
                 scope.smallCardDOMElement = element[0].querySelector('.fmp-card-small');
@@ -124,9 +126,6 @@ angular.module('fmp-card', [])
                 //flipping card representation
                 scope.flipperCardDOMElement = element[0].querySelector('.fmp-flipper');
 
-                //HTML element to identify clicks outside cards
-                scope.htmlElement = angular.element(document.getElementsByTagName('html'));
-
                 //Initialize card states to animate card moving back out final state
                 animateCardMovingOutStrategy(scope.smallCardDOMElement, scope.largeCardDOMElement);
 
@@ -134,15 +133,24 @@ angular.module('fmp-card', [])
                 angular.element(scope.largeCardDOMElement).attr('style',"display:none;");
 
                 //Event when clicking outside current card which is opened
-                scope.htmlClickEventHandler = function() {
-                    scope.htmlElement.unbind(scope.clickEvent, scope.htmlClickEventHandler);
-                    animateCardMovingOut(scope.smallCardDOMElement, scope.largeCardDOMElement, scope.flipperCardDOMElement);
-                    scope.$digest();
+                var onLargeCardSelected = function() {
+                    var isClosingCard = false;
+                    if (scope.onCardClosed){
+                        isClosingCard = scope.onCardClosed();
+                    }
+
+                    if (isClosingCard != false) { //During tests this received 'undefined'
+                        animateCardMovingOut(scope.smallCardDOMElement, scope.largeCardDOMElement, scope.flipperCardDOMElement);
+                        //scope.$digest();
+                    }
                 };
 
                 //Event when clicking on a closed small card
                 var onSmallCardSelected = function(e){
                     var isCardAlreadyOpen = false;// if we have a different card already open then don't open another
+                    if (!scope.allSmallCardDOMElements){
+                        scope.allSmallCardDOMElements = angular.element(document.getElementsByClassName('fmp-card-small'));
+                    }
                     //Check if we got another card already open
                     for (var i = 0; i < scope.allSmallCardDOMElements.length; i++) {
                         isCardAlreadyOpen = (scope.allSmallCardDOMElements[i].style.visibility == "hidden");
@@ -152,8 +160,9 @@ angular.module('fmp-card', [])
                     }
                     if (!isCardAlreadyOpen) { //We don't have a different card already open
                         animateCardMovingIn(scope.smallCardDOMElement, scope.largeCardDOMElement, scope.flipperCardDOMElement);
-                        //Binding only in event so we don't create for each meal binds to html body for identifying clicks outside
-                        scope.htmlElement.bind(scope.clickEvent, scope.htmlClickEventHandler);
+                        if (scope.onCardOpened){
+                            scope.onCardOpened();
+                        }
                         e.stopPropagation();
                     }
                 };
@@ -170,11 +179,6 @@ angular.module('fmp-card', [])
                     if (scope.clickEvent == 'touch'){
                         onSmallCardSelected(e);
                     }
-                };
-
-                //Event When clicking on open card stop event propagation so it wont close the card
-                var onLargeCardSelected = function(e){
-                    e.stopPropagation();
                 };
 
                 scope.onLargeCardClicked = function(e){
@@ -219,7 +223,7 @@ angular.module('fmp-card', [])
                 //Check if ionic is installed and if so modify events to use on-touch instead of ng-click. faster
                 scope.clickEvent = 'click';
                 //noinspection JSUnresolvedVariable
-                //if (typeof ionic !== 'undefined') {
+                //if (typeof ionic !== 'undefined') { //Might need to comment this out if fails build on angular only machine
                 //    scope.clickEvent = 'touch';
                 //}
             },
