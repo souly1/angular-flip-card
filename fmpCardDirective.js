@@ -44,7 +44,7 @@ angular.module('fmp-card', [])
 
             var cssVendorPrefix = getCssVendorPrefix("transform");
 
-            var endFlipCardStyle = cssVendorPrefix + "transform: translate(0px, 0px) scale(1) rotateY(179.9deg);";
+            var endFlipCardStyle = cssVendorPrefix + "transform: translate(0px, 0px) scale(1) rotateY(180deg);";
             angular.element(flipCard).attr("style", startFlipCardStyle);
 
             $timeout(function() {

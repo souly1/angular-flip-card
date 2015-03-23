@@ -90,9 +90,9 @@
     right: 0;
     top: 0;
     z-index: 500;
-    -moz-transform: rotateY(180deg);
-    -ms-transform: rotateY(180deg);
-    -o-transform: rotateY(180deg);
-    -webkit-transform: rotateY(180deg);
-    transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg) translatez(1px);
+    -ms-transform: rotateY(180deg) translatez(1px);
+    -o-transform: rotateY(180deg) translatez(1px);
+    -webkit-transform: rotateY(180deg) translatez(1px);
+    transform: rotateY(180deg) translatez(1px);
 }
