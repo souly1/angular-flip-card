@@ -67,7 +67,7 @@ angular.module('fmp-card', [])
 
                     angular.element(largeCard).addClass('unflip');
                     angular.element(flipCard).attr("style", endFlipCardStyle + 'z-index:700;');
-                }, 0);
+                }, 100);//Not 0 since sometimes animation not happening in browser
             },100);
         };
 
