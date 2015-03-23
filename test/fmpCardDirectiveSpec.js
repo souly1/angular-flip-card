@@ -208,13 +208,14 @@ describe('Card Flip Directive', function() {
         //Act
         smallCard.click();
         $timeout.flush();
+        $timeout.flush();
 
         window.setTimeout(function () {
             //Assert
             expect(smallCard[0].style.visibility).toBe('hidden');
             expect(largeCard[0].style.display).toBe('block');
             done();
-        }, 0);
+        }, 1000);
     });
 
     it('Should close flipped large card once clicked', function(done) {
@@ -232,22 +233,22 @@ describe('Card Flip Directive', function() {
 
         //Act
         smallCard.click();
-        window.setTimeout(function () {
-            expect(smallCard[0].style.visibility).toBe('hidden'); //Verify small card has been flipped
-            expect(largeCard[0].style.display).toBe('block'); //Verify small card has been flipped
-            largeCard.click();
-            $scope.$digest();
-            window.setTimeout(function () {
-                window.setTimeout(function () {
-                    //Assert
-                    expect(smallCard[0].style.visibility).toBe(''); //Verify large card has been flipped
-                    expect(largeCard[0].style.display).toBe('none'); //Verify large card has been flipped
-                    done();
-                }, 10);
-            }, 500);
-        }, 500);
         //$scope.$digest();
         $timeout.flush();
+        $timeout.flush();
+
+        //Assert 1 - card flipped first time
+        expect(smallCard[0].style.visibility).toBe('hidden'); //Verify small card has been flipped
+        expect(largeCard[0].style.display).toBe('block'); //Verify small card has been flipped
+        largeCard.click();
+        $scope.$digest();
+
+        window.setTimeout(function () {
+            //Assert 2 - card flipped back
+            expect(smallCard[0].style.visibility).toBe(''); //Verify large card has been flipped
+            expect(largeCard[0].style.display).toBe('none'); //Verify large card has been flipped
+            done();
+        }, 500);
     });
 
     it('Should fire onCardOpen event when clicking on small card', function(done) {
@@ -269,14 +270,11 @@ describe('Card Flip Directive', function() {
 
         //Act
         smallCard.click();
-
-        window.setTimeout(function () {
-            //Assert
-            expect(cardOpened).toBe(true);
-            done();
-        }, 0);
         $scope.$digest();
-        //$timeout.flush();
+
+        //Assert
+        expect(cardOpened).toBe(true);
+        done();
     });
 
     it('Should fire onCardClose event when clicking on small card and cancel close if return value is false', function(done) {
@@ -299,22 +297,25 @@ describe('Card Flip Directive', function() {
 
         //Act
         smallCard.click();
-        window.setTimeout(function () {
-            expect(smallCard[0].style.visibility).toBe('hidden'); //Verify small card has been flipped
-            expect(largeCard[0].style.display).toBe('block'); //Verify small card has been flipped
-            largeCard.click();
-            $scope.$digest();
-            window.setTimeout(function () {
-                window.setTimeout(function () {
-                    //Assert
-                    expect(smallCard[0].style.visibility).toBe('hidden'); //Verify large card has been flipped
-                    expect(largeCard[0].style.display).toBe('block'); //Verify large card has been flipped
-                    expect(cardClosedCalled).toBe(true);
-                    done();
-                }, 0);
-            }, 500);
-        }, 500);
+
+        //Angular
         //$scope.$digest();
         $timeout.flush();
+        $timeout.flush();
+
+        //Assert 1 - verify card flipped first time
+        expect(smallCard[0].style.visibility).toBe('hidden'); //Verify small card has been flipped
+        expect(largeCard[0].style.display).toBe('block'); //Verify small card has been flipped
+        largeCard.click();
+        $scope.$digest();
+
+        //Assert 2 - verify card not flipped back
+        window.setTimeout(function () {
+            //Assert 2 - card flipped back
+            expect(smallCard[0].style.visibility).toBe('hidden'); //Verify large card has been flipped
+            expect(largeCard[0].style.display).toBe('block'); //Verify large card has been flipped
+            expect(cardClosedCalled).toBe(true);
+            done();
+        }, 500);
     });
 });
