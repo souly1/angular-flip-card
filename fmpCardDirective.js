@@ -139,7 +139,7 @@ angular.module('fmp-card', [])
                         isClosingCard = scope.onCardClosed();
                     }
 
-                    if (isClosingCard != false) { //During tests this received 'undefined'
+                    if (isClosingCard !== false) { //During tests this received 'undefined'
                         animateCardMovingOut(scope.smallCardDOMElement, scope.largeCardDOMElement, scope.flipperCardDOMElement);
                         //scope.$digest();
                     }
@@ -241,5 +241,5 @@ angular.module('fmp-card', [])
                     '<div class="fmp-card-back" ng-transclude></div>' +
                     '</div>' +
             '</div>'
-        }
+        };
     });
