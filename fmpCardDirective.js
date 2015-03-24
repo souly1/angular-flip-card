@@ -230,7 +230,7 @@ angular.module('fmp-card', [])
             template:
             '<!--suppress ALL --><div class="fmp-card-small" id="fmp-card-small-{{directiveSuffix}}" ng-click="onSmallCardClicked($event)" on-touch="onSmallCardTouched($event)">' +
                 '<div class="fmp-card fmp-card-small-image" ng-style="{\'background-image\':\'url(\'+ image +\')\'}">' +
-                    '<div ng-bind="frontCaption"></div>' +
+                    '<div class="card-caption"><div ng-bind="frontCaption"></div></div>' +
                 '</div>' +
             '</div>' +
             '<!--suppress ALL --><div class="fmp-card-large" id="fmp-card-large-{{directiveSuffix}}" ng-click="onLargeCardClicked($event)" on-touch="onLargeCardTouched($event)">' +
