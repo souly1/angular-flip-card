@@ -52,13 +52,17 @@ Where you can replace any HTML code as you like instead of the three dotes as th
 
 ## Directive Options
 
-- 'small-card-width' (optional) - the width of the small card. Can be defined with percentage. Card turned will be twice this size. Defaults auto
-- 'small-card-height' (optional) - the height of the small card. Can be defined with percentage. Card turned will be twice this size. Defaults to 100%
+- `small-card-width` (optional) - the width of the small card. Can be defined with percentage. Card turned will be twice this size. Defaults auto
+- `small-card-height` (optional) - the height of the small card. Can be defined with percentage. Card turned will be twice this size. Defaults to 100%
 - `suffix` (optional) - a suffix to be added to id's for the small card and large card representations. Prefix is 'fmp-card-small-'/'fmp-card-large-' representatively. If none supplied random number issued
 - `image` (optional) - image to be used as cards front face background
 - `front-caption` (optional) - The caption to show for the front cards face
-- 'onCardOpened' (optional) - bind an event fired when card is pressed to open.
-- 'onCardClosed' (optional) - bind an event fired when card is pressed to be closed. if Returns false then cancels close of card
+- `onCardOpened` (optional) - bind an event fired when card is pressed to open.
+- `onCardClosed` (optional) - bind an event fired when card is pressed to be closed. if Returns false then cancels close of card
+- `cardControl` (optional) - given object will receive to methods, one to open card and one to close. both have transition time parameter defining in what speed to perform card flip
+                                `flipToLarge` - Method that will flip small card to large representation
+                                `flipToSmall` - Method that will flip large card to large representation
+
 ## Testing
 
 Ran on Chrome, Safari, Iphone 4 Emulator and Android S3,

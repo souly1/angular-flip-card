@@ -18,6 +18,20 @@ angular.module('fmp-card', [])
                 } else{
                     retval = "-webkit-";
                 }
+            } else if (operation == "transition"){
+                if (userAgent.indexOf('chrome') > -1){
+                    retval = "";
+                } else if (userAgent.indexOf('safari') > -1){
+                    retval = "-webkit-";
+                } else if (userAgent.indexOf('msie') > -1){
+                    retval = "";
+                } else if (userAgent.indexOf('opera') > -1){
+                    retval = "";
+                } else if (userAgent.indexOf('firefox') > -1){
+                    retval = "";
+                } else{
+                    retval = "-webkit-";
+                }
             }
             return retval;
         };
@@ -33,7 +47,7 @@ angular.module('fmp-card', [])
                 "scale(" + flipCardInitialWidthScale + "," + flipCardInitialHeightScale + ");";
         };
 
-        var animateCardMovingIn = function(smallCard, largeCard, flipCard) {
+        var animateCardMovingIn = function(smallCard, largeCard, flipCard, transitionSpeed) {
             //Set the large card in center of view-port
             largeCard.largeCardWidthSize = smallCard.clientWidth * 2;
             largeCard.largeCardHeightSize = smallCard.clientHeight * 2;
@@ -66,7 +80,11 @@ angular.module('fmp-card', [])
                     angular.element(smallCard).attr("style",oldSmallCardStyle + "visibility: hidden;");
 
                     angular.element(largeCard).addClass('unflip');
-                    angular.element(flipCard).attr("style", endFlipCardStyle + 'z-index:700;');
+                    var transitionStyleAddition = '';
+                    if (transitionSpeed !== null && transitionSpeed !== undefined && transitionSpeed !== ""){
+                        transitionStyleAddition = getCssVendorPrefix('transition') + 'transition:' + transitionSpeed + "s;";
+                    }
+                    angular.element(flipCard).attr("style", endFlipCardStyle + 'z-index:700;' + transitionStyleAddition);
                 }, 100);//Not 0 since sometimes animation not happening in browser
             },100);
         };
@@ -87,7 +105,7 @@ angular.module('fmp-card', [])
             }
         };
 
-        var animateCardMovingOut = function(smallCard, largeCard, flipCard) {
+        var animateCardMovingOut = function(smallCard, largeCard, flipCard, transitionSpeed) {
             var transitions = "transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd";
 
             angular.element(flipCard).one(transitions, function(){
@@ -97,6 +115,16 @@ angular.module('fmp-card', [])
             });
 
             var endFlipCardStyle = getFlipCardTransitionStartPointStyle(smallCard, largeCard);
+            if (transitionSpeed !== null && transitionSpeed !== undefined && transitions !== "") { //Change animation speed
+                endFlipCardStyle = endFlipCardStyle + getCssVendorPrefix('transition') + 'transition:' + transitionSpeed + "s;";
+                //angular.element(largeCard).removeClass('unflip');
+                if (transitionSpeed === 0) { //Immediate flip
+                    angular.element(largeCard).removeClass('unflip');
+                    angular.element(flipCard).unbind(transitions);
+                    animateCardMovingOutStrategy(smallCard, largeCard);
+                }
+            }
+
             angular.element(flipCard).attr("style", endFlipCardStyle);
         };
 
@@ -110,7 +138,8 @@ angular.module('fmp-card', [])
                 frontCaption: "@",
                 suffix: "@",
                 onCardOpened: "&",
-                onCardClosed: "&"
+                onCardClosed: "&",
+                cardControl: '='
             },
             link: function (scope, element) {
                 //Get all existing small cards to check if clicking outside of this card not clicking
@@ -133,20 +162,20 @@ angular.module('fmp-card', [])
                 angular.element(scope.largeCardDOMElement).attr('style',"display:none;");
 
                 //Event when clicking outside current card which is opened
-                var onLargeCardSelected = function() {
+                var onLargeCardSelected = function(e, transitionSpeed) {
                     var isClosingCard = false;
                     if (scope.onCardClosed){
                         isClosingCard = scope.onCardClosed();
                     }
 
                     if (isClosingCard !== false) { //During tests this received 'undefined'
-                        animateCardMovingOut(scope.smallCardDOMElement, scope.largeCardDOMElement, scope.flipperCardDOMElement);
+                        animateCardMovingOut(scope.smallCardDOMElement, scope.largeCardDOMElement, scope.flipperCardDOMElement, transitionSpeed);
                         //scope.$digest();
                     }
                 };
 
                 //Event when clicking on a closed small card
-                var onSmallCardSelected = function(e){
+                var onSmallCardSelected = function(e, transitionSpeed){
                     var isCardAlreadyOpen = false;// if we have a different card already open then don't open another
                     if (!scope.allSmallCardDOMElements){
                         scope.allSmallCardDOMElements = angular.element(document.getElementsByClassName('fmp-card-small'));
@@ -159,11 +188,13 @@ angular.module('fmp-card', [])
                         }
                     }
                     if (!isCardAlreadyOpen) { //We don't have a different card already open
-                        animateCardMovingIn(scope.smallCardDOMElement, scope.largeCardDOMElement, scope.flipperCardDOMElement);
+                        animateCardMovingIn(scope.smallCardDOMElement, scope.largeCardDOMElement, scope.flipperCardDOMElement, transitionSpeed);
                         if (scope.onCardOpened){
                             scope.onCardOpened();
                         }
-                        e.stopPropagation();
+                        if (e) {
+                            e.stopPropagation();
+                        }
                     }
                 };
 
@@ -226,6 +257,15 @@ angular.module('fmp-card', [])
                 //if (typeof ionic !== 'undefined') { //Might need to comment this out if fails build on angular only machine
                 //    scope.clickEvent = 'touch';
                 //}
+                if (scope.cardControl) {
+                    scope.cardControl.flipToLarge = function (transitionSpeed) {
+                        onSmallCardSelected(null, transitionSpeed);
+                    };
+
+                    scope.cardControl.flipToSmall = function (transitionSpeed) {
+                        onLargeCardSelected(null, transitionSpeed);
+                    };
+                }
             },
             template:
             '<!--suppress ALL --><div class="fmp-card-small" id="fmp-card-small-{{directiveSuffix}}" ng-click="onSmallCardClicked($event)" on-touch="onSmallCardTouched($event)">' +
