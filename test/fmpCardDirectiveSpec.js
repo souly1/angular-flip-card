@@ -231,7 +231,7 @@ describe('Card Flip Directive', function() {
             expect(smallCard[0].style.visibility).toBe(''); //Verify large card has been flipped
             expect(largeCard[0].style.display).toBe('none'); //Verify large card has been flipped
             done();
-        }, 500);
+        }, 800);
     });
 
     it('Should close flipped large card once clicked', function(done) {
