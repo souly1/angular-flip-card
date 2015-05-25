@@ -17,6 +17,7 @@ describe('Card Flip Directive', function() {
         $rootScope = _$rootScope_;
         $scope = $rootScope.$new();
         $timeout = _$timeout_;
+        isTesting = true;
     }));
 
     afterEach(function() {

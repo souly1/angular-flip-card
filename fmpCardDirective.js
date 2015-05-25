@@ -254,9 +254,9 @@ angular.module('fmp-card', [])
                 //Check if ionic is installed and if so modify events to use on-touch instead of ng-click. faster
                 scope.clickEvent = 'click';
                 //noinspection JSUnresolvedVariable
-                //if (typeof ionic !== 'undefined') { //Might need to comment this out if fails build on angular only machine
-                //    scope.clickEvent = 'touch';
-                //}
+                if (typeof ionic !== 'undefined' && !isTesting) { //Might need to comment this out if fails build on angular only machine
+                    scope.clickEvent = 'touch';
+                }
                 if (scope.cardControl) {
                     scope.cardControl.flipToLarge = function (transitionSpeed) {
                         onSmallCardSelected(null, transitionSpeed);
